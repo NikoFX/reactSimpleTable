@@ -6,7 +6,7 @@ import KeyOutlinedIcon from '@mui/icons-material/KeyOutlined';
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import ModeEditOutlineIcon from '@mui/icons-material/ModeEditOutline';
 import Table from './components/Table'
-import {data} from './data'
+import { data } from './data'
 
 
 function App() {
@@ -22,7 +22,14 @@ function App() {
   const [mode, setMode] = useState('add')
   const [formData, setFormData] = useState(emptyForm)
   const [table, setTable] = useState(data)
-  let unicId = table[table.length - 1].id + 1 ?? 1
+  // const [error, setError] = useState({
+  //   fullName:[{msg:'min. 5',status:false},]
+  // })
+
+  let unicId = table.length ? (table[table.length - 1].id + 1) : 1
+
+
+
   const handleForm = (e) => {
     setFormData(formData => ({ ...formData, [e.target.name]: e.target.value }))
     console.log(formData);
@@ -70,6 +77,10 @@ function App() {
     })
     setTable(newTable)
     setFormData({ ...emptyForm })
+  }
+
+  const validation = () => {
+
   }
 
   return (

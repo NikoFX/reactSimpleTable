@@ -13,7 +13,8 @@ import { data } from './data'
 function App() {
 
   //react-hook-form
-  const { register, handleSubmit, watch, reset, formState: { errors } } = useForm();
+  const { register, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm();
+  register("id")
   //----------//
 
   const [showPassword, setShowPassword] = useState(false);
@@ -45,25 +46,28 @@ function App() {
   }
 
   const edit = (row) => {
-    setFormData(formData => ({
-      id: row.id,
-      fullName: row.fullName,
-      email: row.email,
-      password: row.password,
-      rePassword: row.password
-    }))
+    setValue('id', row.id)
+    setValue('fullName', row.fullName)
+    setValue('email', row.email)
+    setValue('password', row.password)
+    setValue('rePassword', row.password)
     setMode('edit')
   }
 
   const saveEdit = () => {
-    reset()
+
+    let formId = watch('id')
+    let formFullName = watch('fullName')
+    let formEmail = watch('email')
+    let formPassword = watch('password')
     setTable(table => table.map(row => {
-      if (row.id === formData.id) {
+      if (row.id === formId) {
+        console.log('oldu');
         return {
-          id: row.id,
-          fullName: formData.fullName,
-          email: formData.email,
-          password: formData.password
+          id: formId,
+          fullName: formFullName,
+          email: formEmail,
+          password: formPassword
         }
       }
       return row
@@ -100,19 +104,21 @@ function App() {
           <form onSubmit={mode === 'add' ? handleSubmit(addTable) : handleSubmit(saveEdit)}>
             <Box sx={{ display: 'flex', alignItems: 'flex-end', boxSizing: 'border-box' }}>
               <BadgeOutlined sx={{ color: 'action.active', mr: 1, my: 0.5 }} />
-              <TextField fullWidth label="Fullname" variant="standard" margin='dense' {...register("fullName", { required: true, pattern: { value: /...../i, message: 'min length 5' } })} error={Boolean(errors?.fullName)} helperText={errors?.fullName?.message} />
+              <TextField fullWidth label="Fullname" variant="standard" margin='dense' defaultValue={' '} {...register("fullName", { required: true, pattern: { value: /...../i, message: 'min length 5' } })} error={Boolean(errors?.fullName)} helperText={errors?.fullName?.message} />
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'flex-end', boxSizing: 'border-box' }}>
               <EmailOutlinedIcon sx={{ color: 'action.active', mr: 1, my: 0.5 }} />
-              <TextField fullWidth label="Email" variant="standard" margin='dense' {...register("email", { required: true, pattern: { value: /...@...../i, message: 'required an email' } })} error={Boolean(errors?.email)} helperText={errors?.email?.message} />
+              <TextField fullWidth label="Email" variant="standard" margin='dense' defaultValue={' '} {...register("email", { required: true, pattern: { value: /...@...../i, message: 'required an email' } })} error={Boolean(errors?.email)} helperText={errors?.email?.message} />
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'flex-end', boxSizing: 'border-box' }}>
               <KeyOutlinedIcon sx={{ color: 'action.active', mr: 1, my: 0.5 }} />
-              <TextField fullWidth label='Password' variant="standard" margin='dense' {...register("password", { required: true, pattern: { value: /...../i, message: 'min length 5' } })} error={Boolean(errors?.password)} helperText={errors?.password?.message} />
+              <TextField fullWidth label='New password' variant="standard" margin='dense' defaultValue={' '} {...register("password", { required: true, pattern: { value: /...../i, message: 'min length 5' } })} error={Boolean(errors?.password)} helperText={errors?.password?.message} />
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'flex-end', boxSizing: 'border-box' }}>
               <KeyOutlinedIcon sx={{ color: 'action.active', mr: 1, my: 0.5 }} />
-              <TextField fullWidth label='Re-password' variant="standard" margin='dense' {...register("rePassword", { required: true, pattern: { value: /...../i, message: 'repeat password' } })} error={Boolean(errors?.rePassword)} helperText={errors?.rePassword?.message} />
+              <TextField fullWidth label='Confirm password' variant="standard" margin='dense' defaultValue={' '} {...register("rePassword", {
+                required: true, validate: (val) => { if (watch('password') !== val) { return "Your passwords do no match" } }
+              })} error={Boolean(errors?.rePassword)} helperText={errors?.rePassword?.message} />
             </Box>
             {mode === 'add' ?
               <Button

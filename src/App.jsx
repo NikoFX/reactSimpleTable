@@ -6,10 +6,15 @@ import KeyOutlinedIcon from '@mui/icons-material/KeyOutlined';
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import ModeEditOutlineIcon from '@mui/icons-material/ModeEditOutline';
 import Table from './components/Table'
+import { useForm } from 'react-hook-form';
 import { data } from './data'
 
 
 function App() {
+
+  //react-hook-form
+  const { register, handleSubmit, watch, reset, formState: { errors } } = useForm();
+  //----------//
 
   const [showPassword, setShowPassword] = useState(false);
   const emptyForm = {
@@ -51,7 +56,7 @@ function App() {
   }
 
   const saveEdit = () => {
-
+    reset()
     setTable(table => table.map(row => {
       if (row.id === formData.id) {
         return {
@@ -63,24 +68,20 @@ function App() {
       }
       return row
     }))
-    setFormData({ ...emptyForm })
+    reset()
     setMode('add')
   }
 
-  const addTable = () => {
+  const addTable = (e) => {
     let newTable = [...table]
     newTable.push({
       id: unicId,
-      fullName: formData.fullName,
-      email: formData.email,
-      password: formData.password
+      fullName: watch('fullName'),
+      email: watch('email'),
+      password: watch('password')
     })
     setTable(newTable)
-    setFormData({ ...emptyForm })
-  }
-
-  const validation = () => {
-
+    reset()
   }
 
   return (
@@ -96,25 +97,26 @@ function App() {
           p: 5,
           boxSizing: 'border-box'
         }}>
-          <form>
+          <form onSubmit={mode === 'add' ? handleSubmit(addTable) : handleSubmit(saveEdit)}>
             <Box sx={{ display: 'flex', alignItems: 'flex-end', boxSizing: 'border-box' }}>
               <BadgeOutlined sx={{ color: 'action.active', mr: 1, my: 0.5 }} />
-              <TextField fullWidth label="Fullname" variant="standard" margin='dense' onChange={(e) => handleForm(e)} name='fullName' value={formData.fullName} />
+              <TextField fullWidth label="Fullname" variant="standard" margin='dense' {...register("fullName", { required: true, pattern: { value: /...../i, message: 'min length 5' } })} error={Boolean(errors?.fullName)} helperText={errors?.fullName?.message} />
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'flex-end', boxSizing: 'border-box' }}>
               <EmailOutlinedIcon sx={{ color: 'action.active', mr: 1, my: 0.5 }} />
-              <TextField fullWidth label="Email" variant="standard" margin='dense' onChange={(e) => handleForm(e)} name='email' value={formData.email} />
+              <TextField fullWidth label="Email" variant="standard" margin='dense' {...register("email", { required: true, pattern: { value: /...@...../i, message: 'required an email' } })} error={Boolean(errors?.email)} helperText={errors?.email?.message} />
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'flex-end', boxSizing: 'border-box' }}>
               <KeyOutlinedIcon sx={{ color: 'action.active', mr: 1, my: 0.5 }} />
-              <TextField fullWidth label='Password' variant="standard" margin='dense' onChange={(e) => handleForm(e)} name='password' value={formData.password} />
+              <TextField fullWidth label='Password' variant="standard" margin='dense' {...register("password", { required: true, pattern: { value: /...../i, message: 'min length 5' } })} error={Boolean(errors?.password)} helperText={errors?.password?.message} />
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'flex-end', boxSizing: 'border-box' }}>
               <KeyOutlinedIcon sx={{ color: 'action.active', mr: 1, my: 0.5 }} />
-              <TextField fullWidth label='Re-password' variant="standard" margin='dense' onChange={(e) => handleForm(e)} name='rePassword' value={formData.rePassword} />
+              <TextField fullWidth label='Re-password' variant="standard" margin='dense' {...register("rePassword", { required: true, pattern: { value: /...../i, message: 'repeat password' } })} error={Boolean(errors?.rePassword)} helperText={errors?.rePassword?.message} />
             </Box>
             {mode === 'add' ?
               <Button
+                type='submit'
                 variant='contained'
                 color="secondary"
                 startIcon={<PersonAddAltIcon />}
@@ -122,12 +124,12 @@ function App() {
                   my: '20px',
                   width: '100%'
                 }}
-                onClick={addTable}
               >
                 Add to table
               </Button>
               :
               <Button
+                type='submit'
                 variant='contained'
                 color="secondary"
                 startIcon={<ModeEditOutlineIcon />}
@@ -135,7 +137,6 @@ function App() {
                   my: '20px',
                   width: '100%'
                 }}
-                onClick={saveEdit}
               >
                 Save changes
               </Button>
